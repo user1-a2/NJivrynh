@@ -7,7 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1zhZfNCWi4RIU9sexGGcu4NZMhtti8VT3
 """
 
-# Library Used For This Machine Leaarning
+# Library Used For This Machine Learning
 import pandas as pd
 import numpy as np
 import seaborn as sns
