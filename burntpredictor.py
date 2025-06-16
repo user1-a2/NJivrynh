@@ -14,6 +14,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import cross_validate
 from sklearn.ensemble import RandomForestRegressor  # Used instead of LightGBM
+from mne_report import generate_feature_distribution_report
 
 # Parent Class 
 class BasePreprocessor:
@@ -76,15 +77,33 @@ class CaloriePredictor(BasePreprocessor):
 
     # Plots the KDE (distribution) plots for each feature, giving a visual summary of the data spread to user
     def plot_feature_distributions(self):
+        import math
+
         numeric_data = self.data.select_dtypes(include=[np.number])
         num_cols = numeric_data.columns
         n = len(num_cols)
-        fig, ax = plt.subplots(n//3 + 1, 3, figsize=(15, 5*(n//3 + 1)))
+
+        # Layout settings
+        n_cols = 2  # Fewer columns = taller, more readable plots
+        n_rows = math.ceil(n / n_cols)
+        fig_width = 7 * n_cols
+        fig_height = 4 * n_rows
+
+        fig, ax = plt.subplots(n_rows, n_cols, figsize=(fig_width, fig_height))
         ax = ax.flatten()
+
         for i, col in enumerate(num_cols):
             sns.kdeplot(data=numeric_data, x=col, ax=ax[i], fill=True)
-            ax[i].set_title(f'Distribution of {col}')
-        plt.tight_layout()
+            ax[i].set_title(f'Distribution of {col}', fontsize=12)
+            ax[i].tick_params(axis='x', labelrotation=30)
+            ax[i].set_xlabel("")
+            ax[i].set_ylabel("")
+
+        # Hide any unused axes
+        for j in range(i + 1, len(ax)):
+            ax[j].axis("off")
+
+        plt.subplots_adjust(hspace=0.4, wspace=0.3)  # Increase spacing
         plt.show()
 
 
@@ -96,3 +115,5 @@ predictor.feature_engineering()
 predictor.visualize_distribution()
 predictor.plot_feature_distributions()
 predictor.train_model()
+
+generate_feature_distribution_report(predictor.data)
