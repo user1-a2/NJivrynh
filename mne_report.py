@@ -10,6 +10,7 @@ Original file is located at
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 import mne
 
 def generate_feature_distribution_report(data, report_path="feature_distribution_report.html"):
