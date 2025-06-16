@@ -7,6 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1zhZfNCWi4RIU9sexGGcu4NZMhtti8VT3
 """
 
+# Library Used For This Machine Leaarning
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -14,6 +15,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import cross_validate
 from sklearn.ensemble import RandomForestRegressor  # Used instead of LightGBM
 
+# Parent Class 
 class BasePreprocessor:
     def __init__(self, path: str):
         self.path = path
@@ -36,11 +38,13 @@ class BasePreprocessor:
         df['Body_Temp2'] = df['Body_Temp'] ** 0.5
         self.data = df
 
+# Inherit from parent class, also add modelling and visualization
 class CaloriePredictor(BasePreprocessor):
     def __init__(self, path):
         super().__init__(path)
         self.model = RandomForestRegressor(n_estimators=300, max_depth=10, random_state=1)
 
+    # Train model based on a Random Forest Regressor to predict calories
     def train_model(self):
         print("\n🧠 Training Model...")
 
@@ -63,13 +67,14 @@ class CaloriePredictor(BasePreprocessor):
         for key in scores:
             print(f"{key}: {np.mean(scores[key]):.4f}")
 
-
+    # Creates a correlation heatmap between all numeric features.
     def visualize_distribution(self):
         numeric_data = self.data.select_dtypes(include=[np.number])
         sns.heatmap(numeric_data.corr(), annot=True, fmt='.2f', cmap='coolwarm')
         plt.title("Feature Correlation")
         plt.show()
 
+    # Plots the KDE (distribution) plots for each feature, giving a visual summary of the data spread to user
     def plot_feature_distributions(self):
         numeric_data = self.data.select_dtypes(include=[np.number])
         num_cols = numeric_data.columns
