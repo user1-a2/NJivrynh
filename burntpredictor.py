@@ -18,15 +18,35 @@ from mne_report import generate_feature_distribution_report
 
 # Parent Class 
 class BasePreprocessor:
+    """
+    Base class for preprocessing datasets. Handles loading and basic feature engineering.
+    
+    Attributes:
+        path (str): Path to the CSV file.
+        data (pd.DataFrame): Loaded and transformed data.
+    """
     def __init__(self, path: str):
+        """
+        Initialize the preprocessor with a path to the dataset.
+
+        Args:
+            path (str): Path to the CSV file.
+        """
         self.path = path
         self.data = None
 
     def load_data(self):
+        """
+        Loads the CSV file into a pandas DataFrame.
+        """
         self.data = pd.read_csv(self.path)
         print("Data loaded with shape:", self.data.shape)
 
     def feature_engineering(self):
+        """
+        Performs feature engineering by generating new columns based on
+        mathematical combinations of existing features.
+        """
         df = self.data.copy()
         df['BMI'] = df['Weight'] / (df['Height'] / 100) ** 2
         df['Intensity'] = df['Heart_Rate'] / df['Duration']
@@ -41,12 +61,29 @@ class BasePreprocessor:
 
 # Inherit from parent class, also add modelling and visualization
 class CaloriePredictor(BasePreprocessor):
+    """
+    A calorie prediction model class that extends BasePreprocessor.
+    Adds model training and visualization functionality using Random Forest.
+
+    Attributes:
+        model (RandomForestRegressor): A scikit-learn regressor instance.
+    """
     def __init__(self, path):
+        """
+        Initializes the predictor with the dataset path and Random Forest model.
+
+        Args:
+            path (str): Path to the CSV dataset.
+        """
         super().__init__(path)
         self.model = RandomForestRegressor(n_estimators=300, max_depth=10, random_state=1)
 
     # Train model based on a Random Forest Regressor to predict calories
     def train_model(self):
+        """
+        Trains a Random Forest regression model using 5-fold cross-validation.
+        Prints average R² and negative mean absolute error scores.
+        """
         print("\n🧠 Training Model...")
 
         # Drop non-numeric columns
@@ -70,6 +107,9 @@ class CaloriePredictor(BasePreprocessor):
 
     # Creates a correlation heatmap between all numeric features.
     def visualize_distribution(self):
+        """
+        Generates and displays a heatmap of correlation between numeric features.
+        """
         numeric_data = self.data.select_dtypes(include=[np.number])
         sns.heatmap(numeric_data.corr(), annot=True, fmt='.2f', cmap='coolwarm')
         plt.title("Feature Correlation")
@@ -77,6 +117,10 @@ class CaloriePredictor(BasePreprocessor):
 
     # Plots the KDE (distribution) plots for each feature, giving a visual summary of the data spread to user
     def plot_feature_distributions(self):
+        """
+        Plots KDE (Kernel Density Estimate) distributions for all numeric features.
+        Displays plots in a multi-subplot layout.
+        """
         import math
 
         numeric_data = self.data.select_dtypes(include=[np.number])
